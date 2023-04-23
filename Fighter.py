@@ -35,9 +35,10 @@ class Fighter():
         #print(animation_list)
         return animation_list
     
-    def move(self, screen_width, screen_height, surface): #eventually, you will need to add 'target' as a parameter
+    def move(self, screen_width, screen_height, surface, target):
         SPEED = 12
         GRAVITY = 1.5
+        MIN_JUMP_TIME = 0.2
         FULL_JUMP_POWER = -25
         SHORT_HOP_POWER = -10
         dx = 0
@@ -57,7 +58,7 @@ class Fighter():
                 dx = SPEED
                 self.running = True
             #jump
-            if key[pygame.K_w] and not self.jump and self.jump_cooldown == 0:
+            if key[pygame.K_w] and not self.jump and self.jump_cooldown == 0 and self.vel_y == 0:
                 self.jump_pressed_time = pygame.time.get_ticks()
                 self.vel_y = FULL_JUMP_POWER
                 self.jump = True
@@ -65,14 +66,15 @@ class Fighter():
                 self.jump_timer = 0
 
             if self.jump and not key[pygame.K_w]:
-                jump_time = (pygame.time.get_ticks() - self.jump_pressed_time) / 1000
-                #jump_power = self.jump_power * max(0, min(1, (jump_time / self.max_jump_time)))  # calculate jump power based on time held down
-                self.vel_y = SHORT_HOP_POWER
-                self.jump_cooldown = 25 #frames of cooldown
-                self.jump = False
+                if self.jump and not key[pygame.K_w]:
+                    jump_time = (pygame.time.get_ticks() - self.jump_pressed_time) / 1000
+                    if jump_time < MIN_JUMP_TIME:
+                        self.vel_y = SHORT_HOP_POWER
+                        self.jump_cooldown = 25 #frames of cooldown
+                    self.jump = False
             #attack
             if key[pygame.K_o] or key[pygame.K_p]:
-                self.attack(surface) #will need to add 'target'
+                self.attack(surface, target)
                 #determine which attack type was used
                 if key[pygame.K_o]:
                     self.attack_type = 1
@@ -92,12 +94,11 @@ class Fighter():
             self.vel_y = 0
             self.jump = False
             dy = screen_height - 189 - self.rect.bottom
-
-        '''#ensure players face each other
+        #ensure players face each other
         if target.rect.centerx > self.rect.centerx:
             self.flip = False
         else:
-            self.flip = True'''
+            self.flip = True
 
         #apply attack cooldown
         if self.attack_cooldown > 0:
@@ -156,14 +157,14 @@ class Fighter():
                     self.attacking = False
                     self.attack_cooldown = 23
 
-    def attack(self, surface): #will need to add target
+    def attack(self, surface, target):
         if self.attack_cooldown == 0:
             self.attacking = True
             attacking_rect = pygame.Rect(self.rect.centerx - (1.2 * self.rect.width * self.flip), self.rect.y, 1.2 * self.rect.width, self.rect.height)
-            '''if attacking_rect.colliderect(target.rect):
+            if attacking_rect.colliderect(target.rect):
                 #print("HIT!")
                 target.health -= 10
-                target.hit = True'''
+                target.hit = True
         
             pygame.draw.rect(surface, (0, 255, 0), attacking_rect)
 
@@ -177,5 +178,5 @@ class Fighter():
     
     def draw(self, surface):
         img = pygame.transform.flip(self.image, self.flip, False)
-        #pygame.draw.rect(surface, (255, 0, 0), self.rect)
+        pygame.draw.rect(surface, (255, 0, 0), self.rect) #hurt boxes
         surface.blit(img, (self.rect.x - (self.offset[0] *self.image_scale), self.rect.y - (self.offset[1] *self.image_scale)))
