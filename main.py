@@ -1,7 +1,7 @@
 import pygame
 
-from Flying_Eye import FLying_Eye
-from Wizard import Wizard
+from Fighter import Fighter
+#from Wizard import Wizard
 
 pygame.init()
 
@@ -44,7 +44,7 @@ bg_image = pygame.image.load("assets/images/stage.png").convert_alpha()
 
 #load spritesheets
 eye_sheet = pygame.image.load("assets/images/character_sprites/Flying eye/Flying Eye.png").convert_alpha()
-wizard_sheet = pygame.image.load("assets/images/character_sprites/Wizard Pack/Wizard.png").convert_alpha()
+#wizard_sheet = pygame.image.load("assets/images/character_sprites/Wizard Pack/Wizard.png").convert_alpha()
 
 #define number of steps in each animation
 EYE_ANIMATION_STEPS = [8, 8, 8, 8, 4, 4, 4]
@@ -63,8 +63,8 @@ def draw_health_bar(health, x, y):
     pygame.draw.rect(screen, YELLOW, (x, y, 400 * ratio, 30))
 
 #create instances of fighters
-fighter_1 = FLying_Eye(355, 472, False, EYE_DATA, eye_sheet, EYE_ANIMATION_STEPS)
-fighter_2 = Wizard(1004, 472, True, WIZARD_DATA, wizard_sheet, WIZARD_ANIMATION_STEPS)
+fighter_1 = Fighter(355, 472, False, EYE_DATA, eye_sheet, EYE_ANIMATION_STEPS)
+#fighter_2 = Wizard(1004, 472, True, WIZARD_DATA, wizard_sheet, WIZARD_ANIMATION_STEPS)
 
 #game loop
 run = True
@@ -77,12 +77,12 @@ while run:
 
     #show player stats
     draw_health_bar(fighter_1.health, 20, 20)
-    draw_health_bar(fighter_2.health, 1020, 20)
+    #draw_health_bar(fighter_2.health, 1020, 20)
 
     if intro_count <= 0:
         #move fighters
-        fighter_1.move(SCREEN_WIDTH, SCREEN_HEIGHT, screen, fighter_2)
-        fighter_2.move(SCREEN_WIDTH, SCREEN_HEIGHT, screen, fighter_1)
+        fighter_1.move(SCREEN_WIDTH, SCREEN_HEIGHT, screen) # Eventally, you will need to add "fighter_2" as a target parameter
+        #fighter_2.move(SCREEN_WIDTH, SCREEN_HEIGHT, screen, fighter_1)
     else:
         #update count timer
         if (pygame.time.get_ticks() - last_count_update) >= 1000:
@@ -92,11 +92,11 @@ while run:
 
     #update fighters
     fighter_1.update()
-    fighter_2.update()
+    #fighter_2.update()
 
     #draw fighters
     fighter_1.draw(screen)
-    fighter_2.draw(screen)
+    #fighter_2.draw(screen)
 
     #event handler
     for event in pygame.event.get():
